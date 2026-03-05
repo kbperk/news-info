@@ -1,0 +1,88 @@
+{
+  "marquee": {
+    "is_public": true,
+    "text": "【いよいよオープン！？】スーパー地域密着型トランポリンパークがついに福山の地にオープンします！！（あったけどね）"
+  },
+  "items": [
+    {
+      "id": 1,
+      "order": 1,
+      "is_public": true,
+      "title": "kb君も喜んでおります",
+      "youtube_url": "",
+      "image": "https://kbperk.github.io/news-info/news_image_1.jpg?v=1772696895170"
+    },
+    {
+      "id": 2,
+      "order": 2,
+      "is_public": true,
+      "title": "",
+      "youtube_url": "",
+      "image": ""
+    },
+    {
+      "id": 3,
+      "order": 3,
+      "is_public": true,
+      "title": "",
+      "youtube_url": "",
+      "image": ""
+    },
+    {
+      "id": 4,
+      "order": 4,
+      "is_public": true,
+      "title": "",
+      "youtube_url": "",
+      "image": ""
+    },
+    {
+      "id": 5,
+      "order": 5,
+      "is_public": true,
+      "title": "",
+      "youtube_url": "",
+      "image": ""
+    },
+    {
+      "id": 6,
+      "order": 6,
+      "is_public": true,
+      "title": "",
+      "youtube_url": "",
+      "image": ""
+    },
+    {
+      "id": 7,
+      "order": 7,
+      "is_public": true,
+      "title": "",
+      "youtube_url": "",
+      "image": ""
+    },
+    {
+      "id": 8,
+      "order": 8,
+      "is_public": true,
+      "title": "",
+      "youtube_url": "",
+      "image": ""
+    },
+    {
+      "id": 9,
+      "order": 9,
+      "is_public": true,
+      "title": "",
+      "youtube_url": "",
+      "image": ""
+    },
+    {
+      "id": 10,
+      "order": 10,
+      "is_public": true,
+      "title": "",
+      "youtube_url": "",
+      "image": ""
+    }
+  ]
+}
