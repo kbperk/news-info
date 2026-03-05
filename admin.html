@@ -69,7 +69,7 @@
                 <input type="text" name="marquee_text" id="marquee_text" placeholder="例: 【重要】土日祝は50分、平日はたっぷり60分遊べます！">
             </div>
 
-            <p style="font-size: 12px; color: #666; text-align: center; margin-top: 30px;">▼ スライダー画像の設定 (YouTube URL優先) ▼</p>
+            <p style="font-size: 12px; color: #666; text-align: center; margin-top: 30px;">▼ スライダー画像の設定 ▼<br>(※YouTubeが設定されている場合はYouTubeが優先表示されます)</p>
             <div id="form-container">読み込み中...</div>
             
             <button type="button" class="btn-fixed" id="submitBtn" onclick="validateAndUpload()">一括保存する</button>
@@ -88,7 +88,7 @@
 
     <script>
         // ★★★ ここに新しくデプロイしたGASのURLを貼り付けてください ★★★
-        const GAS_API_URL = "https://script.google.com/macros/s/AKfycbwdv5tTmDVXX4W9dgxe41F4ga6PerDfyJGnVKAhg9KRW8o9RiqeOvCyxATbtPf-g0MHQQ/exec";
+        const GAS_API_URL = "https://script.google.com/macros/s/AKfycbyi74YZLPS2e1TBnXu6XBh4anxN1YEUdplYajfiZonUJhBMfj--6gUEd_-4Pg0oUZAUrQ/exec";
 
         async function callApi(action, payload = {}) {
             const pass = document.getElementById('auth-password').value;
@@ -117,21 +117,33 @@
         }
 
         function createForm(currentData) {
-            // 1. マーキー設定の反映
             const marqueeData = currentData.marquee || {};
-            document.getElementById('marquee_is_public').checked = marqueeData.is_public !== false; // デフォルトtrue
+            document.getElementById('marquee_is_public').checked = marqueeData.is_public !== false;
             document.getElementById('marquee_text').value = marqueeData.text || '';
 
-            // 2. 10個のスライダー枠の反映
             const itemsData = currentData.items || [];
             const container = document.getElementById('form-container');
             container.innerHTML = ""; 
             
             for (let i = 1; i <= 10; i++) {
                 const d = itemsData.find(x => x.id === i) || {};
-                const isPublic = d.is_public !== false; // デフォルトtrue
+                const isPublic = d.is_public !== false;
                 
-                // 修正: 説明文(description)の入力エリアを完全に削除
+                // ▼変更：画像プレビューと削除ボタンのHTML生成▼
+                let imagePreviewHtml = '';
+                if (d.image) {
+                    imagePreviewHtml = `
+                        <div style="margin-top:10px; padding:10px; background:#f0f0f0; border-radius:4px;">
+                            <p style="font-size:12px; color:green; margin:0 0 5px 0; font-weight:bold;">✅ 現在登録されている画像</p>
+                            <img src="${d.image}" style="max-height:120px; max-width:100%; object-fit:contain; border:1px solid #ccc; display:block; margin-bottom:10px; background:white;">
+                            <label style="font-size:14px; color:red; display:flex; align-items:center; gap:5px; font-weight:bold; cursor:pointer;">
+                                <input type="checkbox" name="delete_image_${i}" value="true" style="width:20px; height:20px; margin:0;">
+                                この画像を削除する
+                            </label>
+                        </div>
+                    `;
+                }
+
                 const html = `
                   <div class="card js-card" id="card_${i}">
                     <div class="toggle-wrap">
@@ -154,12 +166,14 @@
                             <input type="text" name="title_${i}" value="${d.title || ''}" placeholder="お知らせのタイトル">
                         </div>
                     </div>
-                    <label style="margin-top:15px; color:#ff0000;">YouTube URL (こちらが優先表示)</label>
+                    <label style="margin-top:15px; color:#ff0000;">YouTube URL (音声なし自動再生になります)</label>
                     <input type="text" name="youtube_url_${i}" value="${d.youtube_url || ''}" placeholder="例: https://youtu.be/..." onblur="formatYouTubeUrl(this)">
+                    
                     <label style="margin-top:15px;">または 画像アップロード</label>
                     <input type="file" accept="image/*" onchange="handleFile(this, ${i})">
                     <input type="hidden" name="file_image_${i}" id="file_image_${i}">
-                    ${d.image ? `<p style="font-size:12px; color:green; margin:5px 0 0;">現在画像が登録されています</p>` : ''}
+                    
+                    ${imagePreviewHtml}
                   </div>`;
                 container.insertAdjacentHTML('beforeend', html);
             }
@@ -176,15 +190,12 @@
             }
         }
 
-        // YouTube URLの正規化
         function formatYouTubeUrl(inputElement) {
             let url = inputElement.value.trim();
             if (!url) return;
             if (url.includes("youtube.com/embed/")) return; 
-
             const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=|shorts\/)([^#\&\?]*).*/;
             const match = url.match(regExp);
-
             if (match && match[2].length === 11) {
                 inputElement.value = `https://www.youtube.com/embed/${match[2]}?rel=0`;
             }
