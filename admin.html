@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>お知らせ(NEWS) 管理画面</title>
+    <style>
+        body { font-family: sans-serif; background: #f0fff4; color: #333; padding: 15px; padding-bottom: 100px; margin: 0; }
+        .container { max-width: 600px; margin: 0 auto; display: none; }
+        .card { background: white; padding: 15px; border-radius: 8px; margin-bottom: 20px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); border-left: 5px solid #ccc; }
+        .card.active { border-left-color: #32D74B; }
+        .card.error { border: 2px solid red; background-color: #ffe6e6; }
+        
+        /* マーキー専用カードの色 */
+        .marquee-card { border-left-color: #FFD60A !important; }
+
+        label { display: block; margin-top: 10px; font-weight: bold; font-size: 0.9em; }
+        input[type="text"], input[type="number"], input[type="password"] { 
+            width: 100%; padding: 10px; margin-top: 5px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; font-size: 16px;
+        }
+        
+        .toggle-wrap { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; background: #f9f9f9; padding: 10px; border-radius: 4px; }
+        .toggle-switch { position: relative; display: inline-block; width: 50px; height: 24px; }
+        .toggle-switch input { opacity: 0; width: 0; height: 0; }
+        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: .4s; border-radius: 24px; }
+        .slider:before { position: absolute; content: ""; height: 18px; width: 18px; left: 3px; bottom: 3px; background-color: white; transition: .4s; border-radius: 50%; }
+        input:checked + .slider { background-color: #32D74B; }
+        input:checked + .slider:before { transform: translateX(26px); }
+        
+        .flex-row { display: flex; gap: 10px; align-items: center; }
+        .flex-row > div { flex: 1; }
+        
+        .btn-fixed { position: fixed; bottom: 20px; right: 20px; left: 20px; background: #32D74B; color: white; border: none; padding: 15px; border-radius: 8px; font-size: 1.2rem; font-weight: bold; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.2); z-index: 100; text-align: center; }
+        .btn-fixed:disabled { background: #ccc; cursor: not-allowed; }
+        
+        #login-screen { max-width: 400px; margin: 100px auto; background: white; padding: 30px; border-radius: 8px; text-align: center; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        
+        #error-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; justify-content: center; align-items: center; }
+        .modal-content { background: white; padding: 20px; border-radius: 8px; text-align: center; border: 3px solid red; max-width: 300px; width: 90%; }
+        .modal-content button { margin-top: 15px; background: #333; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; }
+        
+        #status-toast { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background: white; padding: 15px 20px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.3); font-weight: bold; display: none; z-index: 999; width: 80%; text-align: center; }
+    </style>
+</head>
+<body>
+    <div id="login-screen">
+        <h2>お知らせ(NEWS) 管理画面</h2>
+        <input type="password" id="auth-password" placeholder="パスワードを入力">
+        <button onclick="tryLogin()" style="margin-top:20px; padding:10px 20px; width:100%; font-size:16px; background:#333; color:white; border:none; border-radius:4px;">ログイン</button>
+        <div id="login-msg" style="color:red; margin-top:10px;"></div>
+    </div>
+
+    <div id="main-interface" class="container">
+        <h2 style="text-align: center; color: #32D74B;">お知らせ・スライド 編集</h2>
+        <form id="mainForm">
+            
+            <div class="card marquee-card">
+                <div class="toggle-wrap">
+                    <span style="font-weight:bold; font-size:1.1rem; color:#ff9800;">流れる文字(マーキー)の設定</span>
+                    <div style="display:flex; align-items:center; gap:10px;">
+                        <span style="font-size:0.9rem;">公開</span>
+                        <label class="toggle-switch">
+                            <input type="checkbox" name="marquee_is_public" id="marquee_is_public" checked>
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                </div>
+                <label>流れるテキスト</label>
+                <input type="text" name="marquee_text" id="marquee_text" placeholder="例: 【重要】土日祝は50分、平日はたっぷり60分遊べます！">
+            </div>
+
+            <p style="font-size: 12px; color: #666; text-align: center; margin-top: 30px;">▼ スライダー画像の設定 (YouTube URL優先) ▼</p>
+            <div id="form-container">読み込み中...</div>
+            
+            <button type="button" class="btn-fixed" id="submitBtn" onclick="validateAndUpload()">一括保存する</button>
+        </form>
+    </div>
+
+    <div id="error-modal">
+        <div class="modal-content">
+            <h3 style="color:red; margin-top:0;">エラー</h3>
+            <p id="error-text">順番が重複していますので確認してください。</p>
+            <button onclick="closeErrorModal()">閉じる</button>
+        </div>
+    </div>
+
+    <div id="status-toast"></div>
+
+    <script>
+        // ★★★ ここに新しくデプロイしたGASのURLを貼り付けてください ★★★
+        const GAS_API_URL = "https://script.google.com/macros/s/xxxxxxxxxxxxxxxxx/exec";
+
+        async function callApi(action, payload = {}) {
+            const pass = document.getElementById('auth-password').value;
+            const res = await fetch(GAS_API_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                body: JSON.stringify({ action, auth: pass, payload })
+            });
+            const json = await res.json();
+            if (!json.success) throw new Error(json.error);
+            return json.data;
+        }
+
+        async function tryLogin() {
+            const btn = document.querySelector('#login-screen button');
+            const msg = document.getElementById('login-msg');
+            msg.innerText = ""; btn.innerText = "認証中..."; btn.disabled = true;
+            try {
+                const data = await callApi('getNewsData');
+                document.getElementById('login-screen').style.display = 'none';
+                document.getElementById('main-interface').style.display = 'block';
+                createForm(data);
+            } catch (err) { 
+                msg.innerText = err.message; btn.innerText = "ログイン"; btn.disabled = false;
+            }
+        }
+
+        function createForm(currentData) {
+            // 1. マーキー設定の反映
+            const marqueeData = currentData.marquee || {};
+            document.getElementById('marquee_is_public').checked = marqueeData.is_public !== false; // デフォルトtrue
+            document.getElementById('marquee_text').value = marqueeData.text || '';
+
+            // 2. 10個のスライダー枠の反映
+            const itemsData = currentData.items || [];
+            const container = document.getElementById('form-container');
+            container.innerHTML = ""; 
+            
+            for (let i = 1; i <= 10; i++) {
+                const d = itemsData.find(x => x.id === i) || {};
+                const isPublic = d.is_public !== false; // デフォルトtrue
+                
+                // 修正: 説明文(description)の入力エリアを完全に削除
+                const html = `
+                  <div class="card js-card" id="card_${i}">
+                    <div class="toggle-wrap">
+                        <span style="font-weight:bold; font-size:1.1rem;">枠 ${i}</span>
+                        <div style="display:flex; align-items:center; gap:10px;">
+                            <span style="font-size:0.9rem;">公開</span>
+                            <label class="toggle-switch">
+                                <input type="checkbox" name="is_public_${i}" id="is_public_${i}" ${isPublic ? 'checked' : ''}>
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="flex-row">
+                        <div style="flex:0.3">
+                            <label>表示順</label>
+                            <input type="number" name="order_${i}" class="js-order-input" value="${d.order || i}" min="1" max="99">
+                        </div>
+                        <div style="flex:0.7">
+                            <label>タイトル</label>
+                            <input type="text" name="title_${i}" value="${d.title || ''}" placeholder="お知らせのタイトル">
+                        </div>
+                    </div>
+                    <label style="margin-top:15px; color:#ff0000;">YouTube URL (こちらが優先表示)</label>
+                    <input type="text" name="youtube_url_${i}" value="${d.youtube_url || ''}" placeholder="例: https://youtu.be/..." onblur="formatYouTubeUrl(this)">
+                    <label style="margin-top:15px;">または 画像アップロード</label>
+                    <input type="file" accept="image/*" onchange="handleFile(this, ${i})">
+                    <input type="hidden" name="file_image_${i}" id="file_image_${i}">
+                    ${d.image ? `<p style="font-size:12px; color:green; margin:5px 0 0;">現在画像が登録されています</p>` : ''}
+                  </div>`;
+                container.insertAdjacentHTML('beforeend', html);
+            }
+        }
+
+        function handleFile(input, index) {
+            const file = input.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = e => document.getElementById(`file_image_${index}`).value = e.target.result.split(',')[1];
+                reader.readAsDataURL(file);
+            } else {
+                document.getElementById(`file_image_${index}`).value = "";
+            }
+        }
+
+        // YouTube URLの正規化
+        function formatYouTubeUrl(inputElement) {
+            let url = inputElement.value.trim();
+            if (!url) return;
+            if (url.includes("youtube.com/embed/")) return; 
+
+            const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=|shorts\/)([^#\&\?]*).*/;
+            const match = url.match(regExp);
+
+            if (match && match[2].length === 11) {
+                inputElement.value = `https://www.youtube.com/embed/${match[2]}?rel=0`;
+            }
+        }
+
+        function validateAndUpload() {
+            document.querySelectorAll('.js-card').forEach(card => card.classList.remove('error'));
+            const orderInputs = document.querySelectorAll('.js-order-input');
+            const orderValues = [];
+            let hasDuplicate = false;
+            
+            orderInputs.forEach(input => {
+                const val = input.value;
+                if(val !== "") {
+                    if (orderValues.includes(val)) {
+                        hasDuplicate = true;
+                        input.closest('.card').classList.add('error');
+                    }
+                    orderValues.push(val);
+                }
+            });
+            
+            if (hasDuplicate) {
+                document.getElementById('error-modal').style.display = 'flex';
+                return;
+            }
+            uploadData();
+        }
+
+        function closeErrorModal() { document.getElementById('error-modal').style.display = 'none'; }
+
+        async function uploadData() {
+            const btn = document.getElementById('submitBtn');
+            const toast = document.getElementById('status-toast');
+            btn.innerText = "送信中..."; btn.disabled = true; toast.style.display = "none";
+            
+            const formData = {};
+            document.querySelectorAll('#mainForm input[type="text"], #mainForm input[type="number"], #mainForm input[type="hidden"]').forEach(inp => formData[inp.name] = inp.value);
+            document.querySelectorAll('#mainForm input[type="checkbox"]').forEach(inp => formData[inp.name] = inp.checked);
+
+            try {
+                const resultMsg = await callApi('saveNewsData', formData);
+                toast.innerText = resultMsg; toast.style.color = "green";
+            } catch(e) {
+                toast.innerText = "エラー: " + e.message; toast.style.color = "red";
+            }
+            
+            toast.style.display = "block"; btn.innerText = "一括保存する"; btn.disabled = false;
+            setTimeout(() => { toast.style.display = "none"; }, 5000);
+        }
+    </script>
+</body>
+</html>
