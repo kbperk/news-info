@@ -33,7 +33,7 @@
         .btn-fixed { position: fixed; bottom: 20px; right: 20px; left: 20px; background: #32D74B; color: white; border: none; padding: 15px; border-radius: 8px; font-size: 1.2rem; font-weight: bold; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.2); z-index: 100; text-align: center; }
         .btn-fixed:disabled { background: #ccc; cursor: not-allowed; }
         
-        #login-screen { max-width: 400px; margin: 100px auto; background: white; padding: 30px; border-radius: 8px; text-align: center; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        #loading-screen { max-width: 400px; margin: 100px auto; background: white; padding: 40px; border-radius: 10px; text-align: center; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
         
         #error-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; justify-content: center; align-items: center; }
         .modal-content { background: white; padding: 20px; border-radius: 8px; text-align: center; border: 3px solid red; max-width: 300px; width: 90%; }
@@ -43,11 +43,9 @@
     </style>
 </head>
 <body>
-    <div id="login-screen">
-        <h2>お知らせ(NEWS) 管理画面</h2>
-        <input type="password" id="auth-password" placeholder="パスワードを入力">
-        <button onclick="tryLogin()" style="margin-top:20px; padding:10px 20px; width:100%; font-size:16px; background:#333; color:white; border:none; border-radius:4px;">ログイン</button>
-        <div id="login-msg" style="color:red; margin-top:10px;"></div>
+    <div id="loading-screen">
+        <h2>認証中...</h2>
+        <p style="color: #666; margin-top: 10px;">アクセスキーを確認しています</p>
     </div>
 
     <div id="main-interface" class="container">
@@ -90,29 +88,36 @@
         // ★★★ ここに新しくデプロイしたGASのURLを貼り付けてください ★★★
         const GAS_API_URL = "https://script.google.com/macros/s/AKfycbwlfqZObReNlTB4J1kvHovbcD5_8ACx3uxL5y4nUnC8x3bOpm6OgUkmECwU1GE5EPSEAQ/exec";
 
+        // URLパラメータからkeyを取得
+        const urlParams = new URLSearchParams(window.location.search);
+        const MAGIC_KEY = urlParams.get('key');
+
         async function callApi(action, payload = {}) {
-            const pass = document.getElementById('auth-password').value;
+            if (!MAGIC_KEY) throw new Error("アクセスキーがありません。専用のURLからアクセスしてください。");
+
             const res = await fetch(GAS_API_URL, {
                 method: 'POST',
                 headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                body: JSON.stringify({ action, auth: pass, payload })
+                body: JSON.stringify({ action, auth: MAGIC_KEY, payload })
             });
             const json = await res.json();
             if (!json.success) throw new Error(json.error);
             return json.data;
         }
 
-        async function tryLogin() {
-            const btn = document.querySelector('#login-screen button');
-            const msg = document.getElementById('login-msg');
-            msg.innerText = ""; btn.innerText = "認証中..."; btn.disabled = true;
+        async function init() {
+            const loading = document.getElementById('loading-screen');
             try {
                 const data = await callApi('getNewsData');
-                document.getElementById('login-screen').style.display = 'none';
+                
+                // 認証成功：URLバーからキーを消去して画面共有時の漏洩を防止
+                history.replaceState(null, '', window.location.pathname);
+                
+                loading.style.display = 'none';
                 document.getElementById('main-interface').style.display = 'block';
                 createForm(data);
             } catch (err) { 
-                msg.innerText = err.message; btn.innerText = "ログイン"; btn.disabled = false;
+                loading.innerHTML = `<h2 style="color:red;">認証エラー</h2><p>${err.message}</p>`;
             }
         }
 
@@ -129,7 +134,7 @@
                 const d = itemsData.find(x => x.id === i) || {};
                 const isPublic = d.is_public !== false;
                 
-                // ▼変更：画像プレビューと削除ボタンのHTML生成▼
+                // 画像プレビューと削除ボタンのHTML生成
                 let imagePreviewHtml = '';
                 if (d.image) {
                     imagePreviewHtml = `
@@ -246,6 +251,9 @@
             toast.style.display = "block"; btn.innerText = "一括保存する"; btn.disabled = false;
             setTimeout(() => { toast.style.display = "none"; }, 5000);
         }
+
+        // ページ読み込み時に自動で認証を実行
+        window.addEventListener('DOMContentLoaded', init);
     </script>
 </body>
 </html>
