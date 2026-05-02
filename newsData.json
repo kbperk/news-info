@@ -1,7 +1,7 @@
 {
   "marquee": {
     "is_public": true,
-    "text": "【いよいよオープン！？】スーパー地域密着型トランポリンパークがついに福山の地にオープンします！！（あったけどね）"
+    "text": "【GW突入！お出かけはここで決まり！】5/2〜5/6の期間10:00〜18:00営業しております。トランポリンを跳んで気分ぶち上げ🙌"
   },
   "items": [
     {
@@ -13,20 +13,20 @@
       "image": ""
     },
     {
-      "id": 2,
+      "id": 3,
       "order": 2,
+      "is_public": true,
+      "title": "5月の営業カレンダー",
+      "youtube_url": "",
+      "image": "https://kbperk.github.io/news-info/news_image_3.jpg?v=1777697805350"
+    },
+    {
+      "id": 2,
+      "order": 3,
       "is_public": true,
       "title": "KB Perk いよいよオープン！！",
       "youtube_url": "",
       "image": "https://kbperk.github.io/news-info/news_image_2.jpg?v=1772972864545"
-    },
-    {
-      "id": 3,
-      "order": 3,
-      "is_public": true,
-      "title": "新１年生特別企画",
-      "youtube_url": "",
-      "image": "https://kbperk.github.io/news-info/news_image_3.jpg?v=1773464108524"
     },
     {
       "id": 4,
