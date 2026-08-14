@@ -5,16 +5,8 @@
   },
   "items": [
     {
-      "id": 1,
-      "order": 1,
-      "is_public": true,
-      "title": "KB Perkついにオープン！！",
-      "youtube_url": "https://www.youtube.com/embed/5AZEYQG93Hg?rel=0",
-      "image": ""
-    },
-    {
       "id": 3,
-      "order": 2,
+      "order": 1,
       "is_public": true,
       "title": "お盆期間中は「みんなでわいわい料金」除外日です",
       "youtube_url": "",
@@ -22,11 +14,19 @@
     },
     {
       "id": 2,
-      "order": 3,
+      "order": 2,
       "is_public": true,
       "title": "8月の営業カレンダー",
       "youtube_url": "",
       "image": "https://kbperk.github.io/news-info/news_image_2.jpg?v=1785811536172"
+    },
+    {
+      "id": 1,
+      "order": 3,
+      "is_public": true,
+      "title": "KB Perkついにオープン！！",
+      "youtube_url": "https://www.youtube.com/embed/5AZEYQG93Hg?rel=0",
+      "image": ""
     },
     {
       "id": 4,
