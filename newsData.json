@@ -5,28 +5,28 @@
   },
   "items": [
     {
-      "id": 3,
+      "id": 2,
       "order": 1,
       "is_public": true,
-      "title": "8/25(火)〜9/1(火)まで臨時休業です",
+      "title": "9月の営業カレンダー",
       "youtube_url": "",
-      "image": "https://kbperk.github.io/news-info/news_image_3.jpg?v=1787847468796"
-    },
-    {
-      "id": 2,
-      "order": 2,
-      "is_public": true,
-      "title": "8月の営業カレンダー",
-      "youtube_url": "",
-      "image": "https://kbperk.github.io/news-info/news_image_2.jpg?v=1785811536172"
+      "image": "https://kbperk.github.io/news-info/news_image_2.jpg?v=1788514429507"
     },
     {
       "id": 1,
-      "order": 3,
+      "order": 2,
       "is_public": true,
       "title": "KB Perkついにオープン！！",
       "youtube_url": "https://www.youtube.com/embed/5AZEYQG93Hg?rel=0",
       "image": ""
+    },
+    {
+      "id": 3,
+      "order": 3,
+      "is_public": false,
+      "title": "8/25(火)〜9/1(火)まで臨時休業です",
+      "youtube_url": "",
+      "image": "https://kbperk.github.io/news-info/news_image_3.jpg?v=1787847468796"
     },
     {
       "id": 4,
