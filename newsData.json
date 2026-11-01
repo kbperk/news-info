@@ -1,24 +1,24 @@
 {
   "marquee": {
     "is_public": true,
-    "text": "シルバーウィークもあとわずか！家族でトランポリンはいかがですか？？"
+    "text": "11月突入！スポーツの秋にトランポリンはいかがでしょう！屋内なので、悪天候でも楽しめます😊跳んだら絶対笑顔になる！"
   },
   "items": [
     {
-      "id": 2,
+      "id": 1,
       "order": 1,
       "is_public": true,
-      "title": "9月の営業カレンダー",
+      "title": "現役モデルによるフィットネストランポリン始動🤸11月体験価格1500円！お気軽にお問合せください🙇‍♂️",
       "youtube_url": "",
-      "image": "https://kbperk.github.io/news-info/news_image_2.jpg?v=1788514429507"
+      "image": "https://kbperk.github.io/news-info/news_image_1.jpg?v=1793508478948"
     },
     {
-      "id": 1,
+      "id": 2,
       "order": 2,
       "is_public": true,
-      "title": "KB Perkついにオープン！！",
-      "youtube_url": "https://www.youtube.com/embed/5AZEYQG93Hg?rel=0",
-      "image": ""
+      "title": "11月の営業カレンダー",
+      "youtube_url": "",
+      "image": "https://kbperk.github.io/news-info/news_image_2.jpg?v=1793508481208"
     },
     {
       "id": 3,
